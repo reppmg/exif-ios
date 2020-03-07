@@ -18,6 +18,21 @@ class ResultTableViewController: UITableViewController {
         print("Filtered Array: \(data)")
     }
     
+    // Load image from URL with downsample
+    private func load(imageAt imageURL: URL, to pointSize: CGSize, scale: CGFloat) -> UIImage {
+       let imageSourceOptions = [kCGImageSourceShouldCache: false] as CFDictionary
+       let imageSource = CGImageSourceCreateWithURL(imageURL as CFURL, imageSourceOptions)!
+     
+       let maxDimentionInPixels = max(pointSize.width, pointSize.height) * scale
+     
+       let downsampledOptions = [kCGImageSourceCreateThumbnailFromImageAlways: true,
+     kCGImageSourceShouldCacheImmediately: true,
+     kCGImageSourceCreateThumbnailWithTransform: true,
+     kCGImageSourceThumbnailMaxPixelSize: maxDimentionInPixels] as CFDictionary
+      let downsampledImage =     CGImageSourceCreateThumbnailAtIndex(imageSource, 0, downsampledOptions)!
+     
+       return UIImage(cgImage: downsampledImage)
+    }
 
     // MARK: - Table view data source
 
@@ -29,13 +44,22 @@ class ResultTableViewController: UITableViewController {
         return data.count
     }
     
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        
+        let alert = UIAlertController(title: "Фотографи(я/и) друга:\n" + data[indexPath.row].friendsImageNames!, message: "", preferredStyle: UIAlertController.Style.alert)
+        alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.cancel, handler: nil))
+        DispatchQueue.main.async {
+            self.present(alert, animated: true, completion: nil)
+        }
+    }
+    
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "resultTabelViewCell", for: indexPath) as! ResultTableViewCell
-        let index = data[indexPath.row].index
         let imageModel = data[indexPath.row]
         
-        cell.usersPhotoLabel.text = "Ваше фото: \(DatabaseManager.shared.allNames[index])"
-        cell.friendsPhotoLabel.text = "Фото друга: \(imageModel.name)"
+        cell.usersPhotoImage.image = load(imageAt: data[indexPath.row].url!, to: CGSize(width: 512, height: 256), scale: 0.5)
+        cell.usersPhotoLabel.text = "Ваше фото:\n\(data[indexPath.row].name)"
         cell.coordinatesLabel.text = "Lat: \(imageModel.lat.rounded(toPlaces: 4)), Lon: \(imageModel.lon.rounded(toPlaces: 4))"
         cell.timeLabel.text = "\(imageModel.time)"
         

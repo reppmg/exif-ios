@@ -9,8 +9,9 @@
 import Foundation
 
 struct ImageModel {
-    var index: Int
     let name: String
+    let url: URL?
+    let friendsImageNames: String?
     let lon: Double
     let lat: Double
     let time: Double

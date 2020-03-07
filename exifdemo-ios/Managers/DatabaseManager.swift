@@ -20,6 +20,7 @@ class DatabaseManager{
     
     // Arrays
     var allAssets: [PHAsset] = []
+    var allURLs: [URL] = []
     var allNames: [String] = []
     var allDates: [Double] = []
     var allLocations: [CLLocationCoordinate2D] = []
@@ -37,6 +38,7 @@ class DatabaseManager{
         for i in 0..<allAssets.count {
             sortGroup.enter()
             allAssets[i].getURL(completionHandler: { url in
+                self.allURLs.append(url!)
                 self.addToDatabase(index: i, url: url!)
                 sortGroup.leave()
             })
@@ -68,7 +70,7 @@ class DatabaseManager{
                     let lon = gps.value(forKey: "longitude") as! Double
                     let time = main.value(forKey: "time") as! Double
                     
-                    responseImages.append(ImageModel(index: 0, name: "\(key)", lon: lon, lat: lat, time: time))
+                    responseImages.append(ImageModel(name: "\(key)", url: nil, friendsImageNames: nil, lon: lon, lat: lat, time: time))
                 }
             }
             
@@ -79,13 +81,16 @@ class DatabaseManager{
     private func filter(inputArray: [ImageModel]) -> [ImageModel]{
         var outputArray = [ImageModel]()
         for i in 0..<allNames.count {
-            var fArray = inputArray.filter{
+            let fArray = inputArray.filter{
                 $0.lat == Double(allLocations[i].latitude) &&
                 $0.lon == Double(allLocations[i].longitude) &&
                 $0.time == allDates[i]
             }
-            fArray.modifyForEach{ $1.index = i}
-            outputArray += fArray
+            if fArray.count > 0 {
+                let friendsImageNames = fArray.map { $0.name }
+                print("Mapped: \(friendsImageNames.joined(separator: "\n"))")
+                outputArray.append(ImageModel(name: allNames[i], url: allURLs[i], friendsImageNames: friendsImageNames.joined(separator: "\n"), lon: fArray[0].lon, lat: fArray[0].lat, time: fArray[0].time))
+            }
         }
         return outputArray
     }
