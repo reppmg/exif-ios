@@ -19,9 +19,9 @@ class DatabaseManager{
     var deviceID = ""
     
     // Arrays
-    var allAssets: [PHAsset] = []
-    var allURLs: [URL] = []
-    var allNames: [String] = []
+    var allAssets: [[PHAsset]] = []
+    var allURLs: [[URL]] = []
+    var allNames: [[String]] = []
     var allDates: [Double] = []
     var allLocations: [CLLocationCoordinate2D] = []
     
@@ -33,13 +33,11 @@ class DatabaseManager{
         let sortGroup = DispatchGroup()
         ref = Database.database().reference()
         deviceID = UIDevice.current.identifierForVendor!.uuidString
-        print("Device ID: " + deviceID)
         
-        for i in 0..<allAssets.count {
+        for i in 0..<self.allAssets.count {
+            self.allURLs.append([])
             sortGroup.enter()
-            allAssets[i].getURL(completionHandler: { url in
-                self.allURLs.append(url!)
-                self.addToDatabase(index: i, url: url!)
+            getUrls(assets: self.allAssets[i], index: i, completionHandler: {
                 sortGroup.leave()
             })
         }
@@ -50,10 +48,28 @@ class DatabaseManager{
         }
     }
     
-    func addToDatabase(index: Int, url: URL){
-        ref.child("\(deviceID)/\(allNames[index])/gps").setValue(["latitude": allLocations[index].latitude, "longitude": allLocations[index].longitude])
-        ref.child("\(deviceID)/\(allNames[index])/path").setValue(url.absoluteString)
-        ref.child("\(deviceID)/\(allNames[index])/time").setValue(allDates[index])
+    func getUrls(assets: [PHAsset], index: Int, completionHandler : @escaping (() -> Void)){
+        let urlGroup = DispatchGroup()
+        for i in 0..<assets.count {
+            urlGroup.enter()
+            assets[i].getURL(completionHandler: { url in
+                self.allURLs[index].append(url!)
+                self.addToDatabase(index: index, subIndex: i, url: url!)
+                urlGroup.leave()
+            })
+        }
+        
+        // When loop finished
+        urlGroup.notify(queue: .main) {
+            print("Done")
+            completionHandler()
+        }
+    }
+    
+    func addToDatabase(index: Int, subIndex: Int, url: URL){
+        ref.child("\(deviceID)/\(allNames[index][subIndex])/gps").setValue(["latitude": allLocations[index].latitude, "longitude": allLocations[index].longitude])
+        ref.child("\(deviceID)/\(allNames[index][subIndex])/path").setValue(url.absoluteString)
+        ref.child("\(deviceID)/\(allNames[index][subIndex])/time").setValue(allDates[index])
     }
     
     func findSimilarities(id: String, completionHandler: @escaping ((_ filteredArray: [ImageModel]) -> Void)){
@@ -70,7 +86,7 @@ class DatabaseManager{
                     let lon = gps.value(forKey: "longitude") as! Double
                     let time = main.value(forKey: "time") as! Double
                     
-                    responseImages.append(ImageModel(name: "\(key)", url: nil, friendsImageNames: nil, lon: lon, lat: lat, time: time))
+                    responseImages.append(ImageModel(name: ["\(key)"], url: [nil], friendsImageNames: "", lon: lon, lat: lat, time: time))
                 }
             }
             
@@ -87,8 +103,7 @@ class DatabaseManager{
                 $0.time == allDates[i]
             }
             if fArray.count > 0 {
-                let friendsImageNames = fArray.map { $0.name }
-                print("Mapped: \(friendsImageNames.joined(separator: "\n"))")
+                let friendsImageNames = fArray.map { $0.name[0] }
                 outputArray.append(ImageModel(name: allNames[i], url: allURLs[i], friendsImageNames: friendsImageNames.joined(separator: "\n"), lon: fArray[0].lon, lat: fArray[0].lat, time: fArray[0].time))
             }
         }

@@ -106,15 +106,24 @@ class ViewController: UIViewController {
         
         let results: PHFetchResult = PHAsset.fetchAssets(with: .image, options: fetchOptions)
         if results.count > 0 {
-            loadingLabel.text = "ВЫГРУЗКА ДАННЫХ НА СЕРВЕР"
-            changeIndicatorState(state: 1)
+            DispatchQueue.main.async {
+                self.loadingLabel.text = "ВЫГРУЗКА ДАННЫХ НА СЕРВЕР"
+                self.changeIndicatorState(state: 1)
+            }
             for i in 0..<results.count {
                 let asset = results.object(at: i)
                 if let phototLocation = asset.location {
-                    DatabaseManager.shared.allAssets.append(asset)
-                    DatabaseManager.shared.allNames.append(asset.originalFilename!)
-                    DatabaseManager.shared.allLocations.append(phototLocation.coordinate)
-                    DatabaseManager.shared.allDates.append(asset.creationDate!.timeIntervalSince1970)
+                    if(DatabaseManager.shared.allLocations.contains{ $0.latitude == phototLocation.coordinate.latitude} &&
+                        DatabaseManager.shared.allLocations.contains{ $0.longitude == phototLocation.coordinate.longitude} && DatabaseManager.shared.allDates.contains(asset.creationDate!.timeIntervalSince1970)){
+                        let index = DatabaseManager.shared.allDates.firstIndex(of: asset.creationDate!.timeIntervalSince1970)!
+                        DatabaseManager.shared.allAssets[index].append(asset)
+                        DatabaseManager.shared.allNames[index].append(asset.originalFilename!)
+                    }else{
+                        DatabaseManager.shared.allAssets.append([asset])
+                        DatabaseManager.shared.allNames.append([asset.originalFilename!])
+                        DatabaseManager.shared.allLocations.append(phototLocation.coordinate)
+                        DatabaseManager.shared.allDates.append(asset.creationDate!.timeIntervalSince1970)
+                    }
                 }else{
                     print("\(i) hasn't got GPS information.")
                 }
@@ -123,9 +132,6 @@ class ViewController: UIViewController {
             showMessage(Message: "У вас нет фотографий!", type: 0)
         }
         
-        print(DatabaseManager.shared.allNames)
-        print(DatabaseManager.shared.allDates)
-        print(DatabaseManager.shared.allLocations)
         sendToDatabase()
     }
     
@@ -133,6 +139,7 @@ class ViewController: UIViewController {
         DatabaseManager.shared.sortArrays(completionHandler: {
             self.fetchStatus = 1
             self.changeIndicatorState(state: 0)
+            DatabaseManager.shared.checkRecordings()
         })
     }
     

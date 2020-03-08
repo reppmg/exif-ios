@@ -17,22 +17,6 @@ class ResultTableViewController: UITableViewController {
         print("Count: \(data.count)")
         print("Filtered Array: \(data)")
     }
-    
-    // Load image from URL with downsample
-    private func load(imageAt imageURL: URL, to pointSize: CGSize, scale: CGFloat) -> UIImage {
-       let imageSourceOptions = [kCGImageSourceShouldCache: false] as CFDictionary
-       let imageSource = CGImageSourceCreateWithURL(imageURL as CFURL, imageSourceOptions)!
-     
-       let maxDimentionInPixels = max(pointSize.width, pointSize.height) * scale
-     
-       let downsampledOptions = [kCGImageSourceCreateThumbnailFromImageAlways: true,
-     kCGImageSourceShouldCacheImmediately: true,
-     kCGImageSourceCreateThumbnailWithTransform: true,
-     kCGImageSourceThumbnailMaxPixelSize: maxDimentionInPixels] as CFDictionary
-      let downsampledImage =     CGImageSourceCreateThumbnailAtIndex(imageSource, 0, downsampledOptions)!
-     
-       return UIImage(cgImage: downsampledImage)
-    }
 
     // MARK: - Table view data source
 
@@ -47,10 +31,12 @@ class ResultTableViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         
-        let alert = UIAlertController(title: "Фотографи(я/и) друга:\n" + data[indexPath.row].friendsImageNames!, message: "", preferredStyle: UIAlertController.Style.alert)
-        alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.cancel, handler: nil))
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        let controller = storyboard.instantiateViewController(withIdentifier: "detaileViewController") as! DetaileViewController
+        controller.imageData = data[indexPath.row]
+        
         DispatchQueue.main.async {
-            self.present(alert, animated: true, completion: nil)
+            self.present(controller, animated: true, completion: nil)
         }
     }
     
@@ -58,8 +44,7 @@ class ResultTableViewController: UITableViewController {
         let cell = tableView.dequeueReusableCell(withIdentifier: "resultTabelViewCell", for: indexPath) as! ResultTableViewCell
         let imageModel = data[indexPath.row]
         
-        cell.usersPhotoImage.image = load(imageAt: data[indexPath.row].url!, to: CGSize(width: 512, height: 256), scale: 0.5)
-        cell.usersPhotoLabel.text = "Ваше фото:\n\(data[indexPath.row].name)"
+        cell.usersPhotoLabel.text = "Ваше фото:\n\(data[indexPath.row].name.joined(separator: ", "))"
         cell.coordinatesLabel.text = "Lat: \(imageModel.lat.rounded(toPlaces: 4)), Lon: \(imageModel.lon.rounded(toPlaces: 4))"
         cell.timeLabel.text = "\(imageModel.time)"
         

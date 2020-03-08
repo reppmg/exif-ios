@@ -11,7 +11,6 @@ import UIKit
 class ResultTableViewCell: UITableViewCell {
 
     @IBOutlet var usersPhotoLabel: UILabel!
-    @IBOutlet weak var usersPhotoImage: UIImageView!
     @IBOutlet var coordinatesLabel: UILabel!
     @IBOutlet var timeLabel: UILabel!
     

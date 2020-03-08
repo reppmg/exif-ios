@@ -16,6 +16,8 @@
 		D47A67532412E705004C8CAC /* ResultTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D47A67522412E705004C8CAC /* ResultTableViewController.swift */; };
 		D47A67562412E736004C8CAC /* ResultTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = D47A67552412E736004C8CAC /* ResultTableViewCell.swift */; };
 		D47A67592412E988004C8CAC /* Double.swift in Sources */ = {isa = PBXBuildFile; fileRef = D47A67582412E988004C8CAC /* Double.swift */; };
+		D49B4F9424155F0800722DB3 /* DetaileTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = D49B4F9324155F0800722DB3 /* DetaileTableViewCell.swift */; };
+		D49B4F962415606B00722DB3 /* DetaileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D49B4F952415606B00722DB3 /* DetaileViewController.swift */; };
 		D4C46ED3241252D3002837BF /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = D4C46ED2241252D3002837BF /* GoogleService-Info.plist */; };
 		D4E08EBA241243B9005652D3 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4E08EB9241243B9005652D3 /* AppDelegate.swift */; };
 		D4E08EBC241243B9005652D3 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4E08EBB241243B9005652D3 /* SceneDelegate.swift */; };
@@ -40,6 +42,8 @@
 		D47A67522412E705004C8CAC /* ResultTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultTableViewController.swift; sourceTree = "<group>"; };
 		D47A67552412E736004C8CAC /* ResultTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultTableViewCell.swift; sourceTree = "<group>"; };
 		D47A67582412E988004C8CAC /* Double.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Double.swift; sourceTree = "<group>"; };
+		D49B4F9324155F0800722DB3 /* DetaileTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetaileTableViewCell.swift; sourceTree = "<group>"; };
+		D49B4F952415606B00722DB3 /* DetaileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetaileViewController.swift; sourceTree = "<group>"; };
 		D4C46ED2241252D3002837BF /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		D4C46ED4241254DF002837BF /* exifdemo-ios.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "exifdemo-ios.entitlements"; sourceTree = "<group>"; };
 		D4E08EB6241243B9005652D3 /* Exif Demo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Exif Demo.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -116,6 +120,7 @@
 			children = (
 				D4E08EBD241243B9005652D3 /* ViewController.swift */,
 				D47A67522412E705004C8CAC /* ResultTableViewController.swift */,
+				D49B4F952415606B00722DB3 /* DetaileViewController.swift */,
 			);
 			path = ViewControllers;
 			sourceTree = "<group>";
@@ -124,6 +129,7 @@
 			isa = PBXGroup;
 			children = (
 				D47A67552412E736004C8CAC /* ResultTableViewCell.swift */,
+				D49B4F9324155F0800722DB3 /* DetaileTableViewCell.swift */,
 			);
 			path = Cells;
 			sourceTree = "<group>";
@@ -289,11 +295,13 @@
 				D47A67592412E988004C8CAC /* Double.swift in Sources */,
 				D47A67452412A304004C8CAC /* PHAsset.swift in Sources */,
 				D47A674E2412CE5E004C8CAC /* ImageModel.swift in Sources */,
+				D49B4F962415606B00722DB3 /* DetaileViewController.swift in Sources */,
 				D4E08EBA241243B9005652D3 /* AppDelegate.swift in Sources */,
 				D4E08EBC241243B9005652D3 /* SceneDelegate.swift in Sources */,
 				D47A674B2412CBBC004C8CAC /* UIViewController.swift in Sources */,
 				D47A67532412E705004C8CAC /* ResultTableViewController.swift in Sources */,
 				D47A67562412E736004C8CAC /* ResultTableViewCell.swift in Sources */,
+				D49B4F9424155F0800722DB3 /* DetaileTableViewCell.swift in Sources */,
 				D47A67492412C15B004C8CAC /* DatabaseManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
