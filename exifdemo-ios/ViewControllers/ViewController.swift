@@ -10,7 +10,7 @@ import UIKit
 import Photos
 import CoreLocation
 import Firebase
-import Crashlytics
+
 
 class ViewController: UIViewController {
     
@@ -81,7 +81,6 @@ class ViewController: UIViewController {
         }else{
             self.showMessage(Message: "Please enter friend's ID", type: 0)
         }
-        Crashlytics.sharedInstance().crash()
     }
     
     
