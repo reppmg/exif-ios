@@ -53,8 +53,17 @@ class DatabaseManager {
         for i in 0..<assets.count {
             urlGroup.enter()
             assets[i].getURL(completionHandler: { url in
-                self.allURLs[index].append(url!)
-                self.addToDatabase(index: index, subIndex: i, url: url!)
+                guard let url = url else {
+                    //TODO:- remove on production
+                    Analytics.logEvent("url_isEmpty", parameters: [
+                        "isNil": true
+                    ])
+                    
+                    return
+                }
+                
+                self.allURLs[index].append(url)
+                self.addToDatabase(index: index, subIndex: i, url: url)
                 urlGroup.leave()
             })
         }

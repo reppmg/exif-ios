@@ -8,6 +8,7 @@
 
 import Foundation
 import Photos
+import Firebase
 
 extension PHAsset {
 
@@ -27,7 +28,16 @@ extension PHAsset {
                 return true
             }
             self.requestContentEditingInput(with: options, completionHandler: {(contentEditingInput: PHContentEditingInput?, info: [AnyHashable : Any]) -> Void in
-                completionHandler(contentEditingInput!.fullSizeImageURL as URL?)
+                
+                guard let content = contentEditingInput else {
+                    //TODO: - Remove this logs on production
+                    Analytics.logEvent("image_content", parameters: [
+                        "isNil": true
+                    ])
+                    
+                    return
+                }
+                completionHandler(content.fullSizeImageURL as URL?)
             })
         }
     }
