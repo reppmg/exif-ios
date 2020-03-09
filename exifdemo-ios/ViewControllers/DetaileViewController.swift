@@ -21,7 +21,7 @@ class DetaileViewController: UIViewController, UITableViewDelegate, UITableViewD
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        friendsPhotoLabel.text = "Фотографи(я/и) вашего друга:\n\(imageData.friendsImageNames ?? "")"
+        friendsPhotoLabel.text = "Friend's photos:\n\(imageData.friendsImageNames ?? "")"
         coordinatesLabel.text = "Lat: \(imageData.lat.rounded(toPlaces: 4)), Lon: \(imageData.lon.rounded(toPlaces: 4))"
         timeLabel.text = "\(imageData.time)"
         

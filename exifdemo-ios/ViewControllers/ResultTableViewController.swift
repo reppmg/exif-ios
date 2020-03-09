@@ -44,7 +44,7 @@ class ResultTableViewController: UITableViewController {
         let cell = tableView.dequeueReusableCell(withIdentifier: "resultTabelViewCell", for: indexPath) as! ResultTableViewCell
         let imageModel = data[indexPath.row]
         
-        cell.usersPhotoLabel.text = "Ваше фото:\n\(data[indexPath.row].name.joined(separator: ", "))"
+        cell.usersPhotoLabel.text = "Your photo:\n\(data[indexPath.row].name.joined(separator: ", "))"
         cell.coordinatesLabel.text = "Lat: \(imageModel.lat.rounded(toPlaces: 4)), Lon: \(imageModel.lon.rounded(toPlaces: 4))"
         cell.timeLabel.text = "\(imageModel.time)"
         
@@ -56,7 +56,7 @@ class ResultTableViewController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        return "Всего похожих фотографий: \(data.count)"
+        return "Common photos in common: \(data.count)"
     }
     
     override func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {

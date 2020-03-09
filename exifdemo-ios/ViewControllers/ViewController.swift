@@ -10,6 +10,7 @@ import UIKit
 import Photos
 import CoreLocation
 import Firebase
+import Crashlytics
 
 class ViewController: UIViewController {
     
@@ -47,13 +48,13 @@ class ViewController: UIViewController {
                     if (newStatus == PHAuthorizationStatus.authorized) {
                         self.fetchAllPhotos()
                     }else{
-                        self.showMessage(Message: "Пожалуйста, предоставьте разрешение на доступ к вашим фотографиям!", type: 1)
+                        self.showMessage(Message: "Please grant access to photos!", type: 1)
                     }
                 })
             case PHAuthorizationStatus.restricted:
-                self.showMessage(Message: "Пожалуйста, предоставьте разрешение на доступ к вашим фотографиям!", type: 1)
+                self.showMessage(Message: "Please grant access to photos!", type: 1)
             default:
-                self.showMessage(Message: "Пожалуйста, предоставьте разрешение на доступ к вашим фотографиям!", type: 1)
+                self.showMessage(Message: "Please grant access to photos!", type: 1)
             }
         }
     }
@@ -64,7 +65,7 @@ class ViewController: UIViewController {
     
     @IBAction func find(_ sender: Any) {
         if(friendsId.text?.isEmpty == false){
-            loadingLabel.text = "ПРОВЕРКА ДАННЫХ"
+            loadingLabel.text = "DATA CHECK"
             changeIndicatorState(state: 1)
             DatabaseManager.shared.findSimilarities(id: friendsId.text!, completionHandler: { filteredArray in
                 self.changeIndicatorState(state: 0)
@@ -74,12 +75,13 @@ class ViewController: UIViewController {
                     controller.data = filteredArray
                     self.present(controller, animated: true, completion: nil)
                 }else{
-                    self.showMessage(Message: "Похоже что у вас с другом нет похожих фотографий.", type: 0)
+                    self.showMessage(Message: "Look like you don't have common events.", type: 0)
                 }
             })
         }else{
-            self.showMessage(Message: "Пожайлуста введите ID вашего друга.", type: 0)
+            self.showMessage(Message: "Please enter friend's ID", type: 0)
         }
+        Crashlytics.sharedInstance().crash()
     }
     
     
@@ -102,12 +104,13 @@ class ViewController: UIViewController {
         requestOptions.deliveryMode = .fastFormat
         
         let fetchOptions = PHFetchOptions()
+        fetchOptions.fetchLimit = 1000
         fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
         
         let results: PHFetchResult = PHAsset.fetchAssets(with: .image, options: fetchOptions)
         if results.count > 0 {
             DispatchQueue.main.async {
-                self.loadingLabel.text = "ВЫГРУЗКА ДАННЫХ НА СЕРВЕР"
+                self.loadingLabel.text = "Uploading data..."
                 self.changeIndicatorState(state: 1)
             }
             for i in 0..<results.count {
@@ -122,14 +125,14 @@ class ViewController: UIViewController {
                         DatabaseManager.shared.allAssets.append([asset])
                         DatabaseManager.shared.allNames.append([asset.originalFilename!])
                         DatabaseManager.shared.allLocations.append(phototLocation.coordinate)
-                        DatabaseManager.shared.allDates.append(asset.creationDate!.timeIntervalSince1970)
+                        DatabaseManager.shared.allDates.append(asset.creationDate!.timeIntervalSince1970 * 1000)
                     }
                 }else{
                     print("\(i) hasn't got GPS information.")
                 }
             }
         } else {
-            showMessage(Message: "У вас нет фотографий!", type: 0)
+            showMessage(Message: "You don't have any photos!", type: 0)
         }
         
         sendToDatabase()
@@ -149,8 +152,8 @@ class ViewController: UIViewController {
         if(type == 0){
             alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.cancel, handler: nil))
         }else{
-            alert.addAction(UIAlertAction(title: "Отмена", style: UIAlertAction.Style.cancel, handler: nil))
-            alert.addAction(UIAlertAction(title: "Перейдите в настройки", style: UIAlertAction.Style.default, handler: { _ in
+            alert.addAction(UIAlertAction(title: "Cancel", style: UIAlertAction.Style.cancel, handler: nil))
+            alert.addAction(UIAlertAction(title: "Go to settings", style: UIAlertAction.Style.default, handler: { _ in
                 if let url = URL.init(string: UIApplication.openSettingsURLString) {
                     UIApplication.shared.open(url, options: [:], completionHandler: nil)
                 }
