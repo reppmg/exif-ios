@@ -28,16 +28,10 @@ extension PHAsset {
                 return true
             }
             self.requestContentEditingInput(with: options, completionHandler: {(contentEditingInput: PHContentEditingInput?, info: [AnyHashable : Any]) -> Void in
-                
-                guard let content = contentEditingInput else {
-                    //TODO: - Remove this logs on production
-                    Analytics.logEvent("image_content", parameters: [
-                        "isNil": true
-                    ])
-                    
-                    return
+                if let content = contentEditingInput {
+                    completionHandler(content.fullSizeImageURL as URL?)
                 }
-                completionHandler(content.fullSizeImageURL as URL?)
+                
             })
         }
     }

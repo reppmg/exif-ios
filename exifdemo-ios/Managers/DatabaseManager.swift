@@ -37,33 +37,29 @@ class DatabaseManager {
         for i in 0..<self.allAssets.count {
             self.allURLs.append([])
             sortGroup.enter()
-            getUrls(assets: self.allAssets[i], index: i, completionHandler: {
-                sortGroup.leave()
-            })
+            getUrls(assets: allAssets[i], index: i)
+            sortGroup.leave()
+            
         }
+        
 
         // When all sorted
         sortGroup.notify(queue: .main) {
+            print("Called")
             completionHandler()
         }
     }
 
-    func getUrls(assets: [PHAsset], index: Int, completionHandler: @escaping (() -> Void)) {
+    func getUrls(assets: [PHAsset], index: Int) {
         let urlGroup = DispatchGroup()
         for i in 0..<assets.count {
             urlGroup.enter()
-            assets[i].getURL(completionHandler: { url in
-                guard let url = url else {
-                    //TODO:- remove on production
-                    Analytics.logEvent("url_isEmpty", parameters: [
-                        "isNil": true
-                    ])
-                    
-                    return
+            assets[i].getURL(completionHandler: { [weak self] url in
+                if let url = url {
+                    self?.allURLs[index].append(url)
+                    self?.addToDatabase(index: index, subIndex: i, url: url)
                 }
                 
-                self.allURLs[index].append(url)
-                self.addToDatabase(index: index, subIndex: i, url: url)
                 urlGroup.leave()
             })
         }
@@ -71,7 +67,7 @@ class DatabaseManager {
         // When loop finished
         urlGroup.notify(queue: .main) {
             print("Done")
-            completionHandler()
+//            completionHandler()
         }
     }
 
