@@ -37,20 +37,20 @@ class DatabaseManager {
         for i in 0..<self.allAssets.count {
             self.allURLs.append([])
             sortGroup.enter()
-            getUrls(assets: allAssets[i], index: i)
+            getUrls(assets: allAssets[i], index: i, completionHandler: {
+                print("Completed")
+            })
             sortGroup.leave()
-            
         }
         
 
         // When all sorted
         sortGroup.notify(queue: .main) {
-            print("Called")
             completionHandler()
         }
     }
 
-    func getUrls(assets: [PHAsset], index: Int) {
+    func getUrls(assets: [PHAsset], index: Int, completionHandler: @escaping (() -> Void)) {
         let urlGroup = DispatchGroup()
         for i in 0..<assets.count {
             urlGroup.enter()
@@ -66,8 +66,7 @@ class DatabaseManager {
 
         // When loop finished
         urlGroup.notify(queue: .main) {
-            print("Done")
-//            completionHandler()
+            completionHandler()
         }
     }
 
