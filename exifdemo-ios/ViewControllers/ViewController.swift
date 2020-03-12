@@ -64,11 +64,13 @@ class ViewController: UIViewController {
     }
     
     @IBAction func find(_ sender: Any) {
-        if(friendsId.text?.isEmpty == false){
+        
+        if let providedId = friendsId.text, !providedId.isEmpty {
             loadingLabel.text = "DATA CHECK"
             changeIndicatorState(state: 1)
-            DatabaseManager.shared.findSimilarities(id: friendsId.text!, completionHandler: { filteredArray in
+            DatabaseManager.shared.findSimilarities(id: providedId, completionHandler: { filteredArray in
                 self.changeIndicatorState(state: 0)
+                
                 if(filteredArray.count > 0){
                     let storyboard = UIStoryboard(name: "Main", bundle: nil)
                     let controller = storyboard.instantiateViewController(withIdentifier: "resultTabelViewController") as! ResultTableViewController
@@ -78,9 +80,10 @@ class ViewController: UIViewController {
                     self.showMessage(Message: "Look like you don't have common events.", type: 0)
                 }
             })
-        }else{
-            self.showMessage(Message: "Please enter friend's ID", type: 0)
+        } else {
+            showMessage(Message: "Please enter friend's ID", type: 0)
         }
+        
     }
     
     

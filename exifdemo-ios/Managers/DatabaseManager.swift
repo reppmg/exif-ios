@@ -12,28 +12,28 @@ import CoreLocation
 import Firebase
 
 class DatabaseManager {
-
+    
     static let shared = DatabaseManager()
-
+    
     var ref: DatabaseReference!
     var deviceID = ""
-
+    
     // Arrays
     var allAssets: [[PHAsset]] = []
     var allURLs: [[URL]] = []
     var allNames: [[String]] = []
     var allDates: [Double] = []
     var allLocations: [CLLocationCoordinate2D] = []
-
+    
     func getDeviceID() -> String {
         return UIDevice.current.identifierForVendor!.uuidString
     }
-
+    
     func sortArrays(completionHandler: @escaping (() -> Void)) {
         let sortGroup = DispatchGroup()
         ref = Database.database().reference()
         deviceID = UIDevice.current.identifierForVendor!.uuidString
-
+        
         for i in 0..<self.allAssets.count {
             self.allURLs.append([])
             sortGroup.enter()
@@ -43,64 +43,67 @@ class DatabaseManager {
             sortGroup.leave()
         }
         
-
         // When all sorted
         sortGroup.notify(queue: .main) {
             completionHandler()
         }
     }
-
+    
     func getUrls(assets: [PHAsset], index: Int, completionHandler: @escaping (() -> Void)) {
         let urlGroup = DispatchGroup()
         for i in 0..<assets.count {
             urlGroup.enter()
-            assets[i].getURL(completionHandler: { [weak self] url in
+            assets[i].getURL(completionHandler: { url in
                 if let url = url {
-                    self?.allURLs[index].append(url)
-                    self?.addToDatabase(index: index, subIndex: i, url: url)
+                    self.allURLs[index].append(url)
+                    self.addToDatabase(index: index, subIndex: i, url: url)
                 }
                 
                 urlGroup.leave()
             })
         }
-
+        
         // When loop finished
         urlGroup.notify(queue: .main) {
             completionHandler()
         }
     }
-
+    
     func addToDatabase(index: Int, subIndex: Int, url: URL) {
         ref.child("\(deviceID)/\(allNames[index][subIndex])/gps").setValue(["latitude": allLocations[index].latitude, "longitude": allLocations[index].longitude])
         ref.child("\(deviceID)/\(allNames[index][subIndex])/path").setValue(url.absoluteString)
         ref.child("\(deviceID)/\(allNames[index][subIndex])/time").setValue(allDates[index])
     }
-
+    
     func findSimilarities(id: String, completionHandler: @escaping ((_ filteredArray: [ImageModel]) -> Void)) {
-        ref.child(id).observeSingleEvent(of: .value, with: { (snapshot) in
-            let responseDictionary = snapshot.value as? NSDictionary
+        ref.child(id).observeSingleEvent(of: .value, with: { snapshot in
+            
             var responseImages = [ImageModel]()
-
-            if (responseDictionary != nil) {
-                for (key, value) in responseDictionary! {
-                    let main = value as! NSDictionary
-                    if (main["gps"] == nil) {
+            
+            if let responseDictionary = snapshot.value as? NSDictionary {
+                for (key, value) in responseDictionary {
+                    let main = value as? NSDictionary
+                    if (main?["gps"] == nil) {
                         continue
                     }
-                    let gps = main.value(forKey: "gps") as! NSDictionary
-
-                    let lat = gps.value(forKey: "latitude") as! Double
-                    let lon = gps.value(forKey: "longitude") as! Double
-                    let time = main.value(forKey: "time") as! Double
-
-                    responseImages.append(ImageModel(name: ["\(key)"], url: [nil], friendsImageNames: "", lon: lon, lat: lat, time: time))
+                    let gps = main?.value(forKey: "gps") as? NSDictionary
+                    
+                    let lat = gps?.value(forKey: "latitude") as? Double
+                    let lon = gps?.value(forKey: "longitude") as? Double
+                    let time = main?.value(forKey: "time") as? Double
+                    
+                    if let latitude = lat, let longitude = lon, let time = time {
+                        responseImages.append(ImageModel(name: ["\(key)"], url: [nil], friendsImageNames: "", lon: longitude, lat: latitude, time: time))
+                    }
                 }
             }
-
+            
+            
             completionHandler(self.filter(inputArray: responseImages))
+            
         })
     }
-
+    
     private func filter(inputArray: [ImageModel]) -> [ImageModel] {
         var outputArray = [ImageModel]()
         for i in 0..<allNames.count {
@@ -110,7 +113,7 @@ class DatabaseManager {
                 let timeDifference: Double = abs($0.time - allDates[i])
                 let timeFit = timeDifference < 3 * 60 * 60 * 1000.0
                 let b: Bool = distanceFit &&
-                        timeFit
+                timeFit
                 return b
             }
             if fArray.count > 0 {
@@ -122,7 +125,7 @@ class DatabaseManager {
         }
         return outputArray
     }
-
+    
     func checkRecordings() {
         ref.child(deviceID).observeSingleEvent(of: .value, with: { (snapshot) in
             print("DB: \(snapshot.value ?? "No Recording")")
